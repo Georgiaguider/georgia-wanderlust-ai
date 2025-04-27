@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define the props for the component
 interface LocationSearchProps {
@@ -29,35 +30,62 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 }) => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
     
     const fetchPredictions = async (input: string) => {
-      if (input === '') {
+      if (input.trim() === '') {
         setPredictions([]);
         setShowPredictions(false);
         return;
       }
 
       try {
+        setIsLoading(true);
         const { data, error } = await supabase.functions.invoke('google-places', {
           body: { input }
         });
 
+        setIsLoading(false);
+
         if (error) {
           console.error('Error fetching predictions:', error);
+          toast({
+            title: "Error loading suggestions",
+            description: "Could not load location suggestions. Please try typing your destination.",
+            variant: "destructive",
+          });
           return;
         }
 
-        if (data.predictions) {
+        if (data.predictions && Array.isArray(data.predictions)) {
+          console.log('Predictions received:', data.predictions.length);
           setPredictions(data.predictions);
           setShowPredictions(true);
+        } else if (data.error_message) {
+          console.error('Google Places API error:', data.error_message);
+          toast({
+            title: "API Error",
+            description: "There was an issue with the location service. Please try again later.",
+            variant: "destructive",
+          });
+        } else {
+          console.log('No predictions found or invalid response format', data);
+          setPredictions([]);
         }
       } catch (error) {
+        setIsLoading(false);
         console.error('Error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch location suggestions. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
@@ -80,7 +108,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         clearTimeout(timeoutId);
       }
     };
-  }, [value]);
+  }, [value, toast]);
 
   // Handle clicks outside the prediction list to close it
   useEffect(() => {
@@ -120,6 +148,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           className="pl-10 w-full"
           onFocus={() => value && predictions.length > 0 && setShowPredictions(true)}
         />
+        {isLoading && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin h-4 w-4 border-2 border-gray-500 border-t-transparent rounded-full"></div>
+          </div>
+        )}
       </div>
       
       {showPredictions && predictions.length > 0 && (
@@ -138,11 +171,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
             >
               <MapPin size={16} className="mr-2 text-georgia-red" />
               <div>
-                <p className="text-sm">{prediction.description}</p>
-                <p className="text-xs text-gray-500">{prediction.structured_formatting.secondary_text}</p>
+                <p className="text-sm font-medium">{prediction.structured_formatting?.main_text || prediction.description}</p>
+                {prediction.structured_formatting?.secondary_text && (
+                  <p className="text-xs text-gray-500">{prediction.structured_formatting.secondary_text}</p>
+                )}
               </div>
             </div>
           ))}
+        </div>
+      )}
+      
+      {showPredictions && predictions.length === 0 && !isLoading && value.trim() !== '' && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg p-4 text-center text-gray-500">
+          No locations found in Georgia matching your search
         </div>
       )}
     </div>

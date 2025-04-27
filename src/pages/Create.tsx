@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -8,14 +8,6 @@ import ItineraryDisplay from '@/components/ItineraryDisplay';
 import { useToast } from '@/components/ui/use-toast';
 import { generateItinerary, ItineraryDay } from '@/services/openai';
 import { format, addDays, differenceInDays } from 'date-fns';
-
-// This will be injected via a script tag in index.html
-declare global {
-  interface Window {
-    google: any;
-    initGoogleMapsApi?: () => void;
-  }
-}
 
 const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,42 +20,13 @@ const Create = () => {
   const location = useLocation();
 
   // Extract destination from URL query params if present
-  useEffect(() => {
+  React.useEffect(() => {
     const params = new URLSearchParams(location.search);
     const urlDestination = params.get('destination');
     if (urlDestination) {
       setDestination(urlDestination);
     }
   }, [location.search]);
-
-  // Initialize Google Maps API
-  useEffect(() => {
-    // Check if Google Maps API is already loaded
-    if (window.google && window.google.maps && window.google.maps.places) {
-      console.log("Google Maps API already loaded");
-      return;
-    }
-
-    // Define the callback function
-    window.initGoogleMapsApi = () => {
-      console.log("Google Maps API initialized");
-    };
-
-    // Create and append the script
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&callback=initGoogleMapsApi`;
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
-
-    return () => {
-      // Cleanup
-      if (window.initGoogleMapsApi) {
-        delete window.initGoogleMapsApi;
-      }
-      document.head.removeChild(script);
-    };
-  }, []);
 
   const handleFormSubmit = async (formData: {
     destination: string;

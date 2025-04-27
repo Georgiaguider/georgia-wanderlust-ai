@@ -20,10 +20,18 @@ Deno.serve(async (req) => {
       throw new Error('Missing Google Maps API key');
     }
 
-    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:ge&types=(cities)&key=${GOOGLE_MAPS_API_KEY}`;
+    // Make sure we're only querying for cities in Georgia (country)
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:ge&types=(cities)&language=en&key=${GOOGLE_MAPS_API_KEY}`;
+    
+    console.log(`Fetching Google Places API: ${url.replace(GOOGLE_MAPS_API_KEY, 'API_KEY_REDACTED')}`);
     
     const response = await fetch(url);
     const data = await response.json();
+
+    console.log(`Google Places API response status: ${data.status}`);
+    if (data.status !== 'OK' && data.error_message) {
+      console.error(`Google Places API error: ${data.error_message}`);
+    }
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
