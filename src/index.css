@@ -46,12 +46,53 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair;
+  }
+
+  p, a, span, div, button {
+    @apply font-poppins;
+  }
 }
 
 .georgia-gradient {
   background: linear-gradient(135deg, rgba(154, 38, 23, 0.05) 0%, rgba(74, 111, 165, 0.1) 100%);
 }
 
+.modern-gradient {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.hero-gradient {
+  background: linear-gradient(to right, rgba(243, 244, 246, 0.8) 0%, rgba(229, 231, 235, 0.4) 100%), url('https://images.unsplash.com/photo-1565611642362-859fd5b6512e?auto=format&q=80&fit=crop&w=1920&h=1080') no-repeat center center;
+  background-size: cover;
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 .itinerary-card {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

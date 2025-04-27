@@ -9,6 +9,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { generateItinerary, ItineraryDay } from '@/services/openai';
 import { format, addDays, differenceInDays } from 'date-fns';
 
+// This will be injected via a script tag in index.html
+declare global {
+  interface Window {
+    google: any;
+    initGoogleMapsApi?: () => void;
+  }
+}
+
 const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [destination, setDestination] = useState('');
@@ -27,6 +35,35 @@ const Create = () => {
       setDestination(urlDestination);
     }
   }, [location.search]);
+
+  // Initialize Google Maps API
+  useEffect(() => {
+    // Check if Google Maps API is already loaded
+    if (window.google && window.google.maps && window.google.maps.places) {
+      console.log("Google Maps API already loaded");
+      return;
+    }
+
+    // Define the callback function
+    window.initGoogleMapsApi = () => {
+      console.log("Google Maps API initialized");
+    };
+
+    // Create and append the script
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&callback=initGoogleMapsApi`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup
+      if (window.initGoogleMapsApi) {
+        delete window.initGoogleMapsApi;
+      }
+      document.head.removeChild(script);
+    };
+  }, []);
 
   const handleFormSubmit = async (formData: {
     destination: string;
@@ -114,12 +151,13 @@ const Create = () => {
       
       <main className="flex-grow">
         {/* Form Section */}
-        <section className="georgia-gradient py-12">
+        <section className="modern-gradient py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-xl mx-auto">
-              <h1 className="text-3xl font-bold mb-6 text-center">Plan Your Georgian Adventure</h1>
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="p-6">
+            <div className="max-w-2xl mx-auto">
+              <h1 className="text-4xl font-bold mb-2 text-center font-playfair">Plan Your Georgian Adventure</h1>
+              <p className="text-center text-gray-600 mb-8">Create your personalized travel itinerary in seconds</p>
+              <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="p-8">
                   <TravelForm 
                     onSubmit={handleFormSubmit} 
                     isLoading={isLoading}
@@ -132,7 +170,7 @@ const Create = () => {
         
         {/* Results Section */}
         {itinerary && (
-          <section className="py-12">
+          <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
               <ItineraryDisplay 
                 destination={destination}
@@ -149,41 +187,41 @@ const Create = () => {
         )}
         
         {/* Tips Section */}
-        <section className="py-12 bg-georgia-light">
+        <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl font-bold mb-6 text-center">Georgia Travel Tips</h2>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-3xl font-bold mb-8 text-center font-playfair">Georgia Travel Tips</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold mb-2 text-georgia-blue">Best Time to Visit</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white p-8 rounded-xl shadow-md card-hover">
+                  <h3 className="text-xl font-semibold mb-4 text-georgia-blue">Best Time to Visit</h3>
                   <p className="text-gray-700">
                     May to June and September to October offer the most pleasant weather for exploring Georgia.
-                    Summer (July-August) can be hot in Tbilisi but perfect for mountain regions.
+                    Summer (July-August) can be hot in Tbilisi but perfect for mountain regions like Kazbegi and Svaneti.
                   </p>
                 </div>
                 
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold mb-2 text-georgia-blue">Getting Around</h3>
+                <div className="bg-white p-8 rounded-xl shadow-md card-hover">
+                  <h3 className="text-xl font-semibold mb-4 text-georgia-blue">Getting Around</h3>
                   <p className="text-gray-700">
                     Marshrutkas (minibuses) are the main form of public transportation between cities.
-                    Within cities, taxis are affordable but remember to agree on the price beforehand.
+                    Within cities, taxis and ride-sharing apps are affordable and convenient.
                   </p>
                 </div>
                 
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold mb-2 text-georgia-blue">Must-Try Foods</h3>
+                <div className="bg-white p-8 rounded-xl shadow-md card-hover">
+                  <h3 className="text-xl font-semibold mb-4 text-georgia-blue">Must-Try Foods</h3>
                   <p className="text-gray-700">
                     Don't miss khachapuri (cheese bread), khinkali (dumplings), churchkhela (walnut candy),
-                    and mtsvadi (Georgian barbecue).
+                    and mtsvadi (Georgian barbecue). Georgia also has one of the world's oldest winemaking traditions.
                   </p>
                 </div>
                 
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-lg font-semibold mb-2 text-georgia-blue">Cultural Etiquette</h3>
+                <div className="bg-white p-8 rounded-xl shadow-md card-hover">
+                  <h3 className="text-xl font-semibold mb-4 text-georgia-blue">Cultural Etiquette</h3>
                   <p className="text-gray-700">
-                    Georgians are known for their hospitality. If invited to a supra (feast), be prepared for
-                    lots of toasts! It's polite to bring a small gift when visiting someone's home.
+                    Georgians are known for their warm hospitality. If invited to a supra (feast), prepare for
+                    lots of toasts led by the tamada (toastmaster). Bring a small gift when visiting someone's home.
                   </p>
                 </div>
               </div>

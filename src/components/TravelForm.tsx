@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { format, addDays } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import LocationSearch from './LocationSearch';
 
 interface TravelFormProps {
   onSubmit: (formData: {
@@ -28,45 +30,17 @@ interface TravelFormProps {
   isLoading: boolean;
 }
 
-const georgianCities = [
-  "Tbilisi", 
-  "Batumi", 
-  "Kutaisi", 
-  "Mtskheta", 
-  "Borjomi", 
-  "Kazbegi", 
-  "Sighnaghi", 
-  "Telavi", 
-  "Gori", 
-  "Zugdidi"
-];
-
 const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(addDays(new Date(), 5));
   const [travelStyle, setTravelStyle] = useState('mid-range');
   const [activities, setActivities] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (destination.trim() !== '') {
-      const filteredSuggestions = georgianCities.filter(city => 
-        city.toLowerCase().includes(destination.toLowerCase())
-      );
-      setSuggestions(filteredSuggestions);
-      setShowSuggestions(filteredSuggestions.length > 0);
-    } else {
-      setShowSuggestions(false);
-    }
-  }, [destination]);
-
-  const handleDestinationSelect = (city: string) => {
-    setDestination(city);
-    setShowSuggestions(false);
+  const handleLocationChange = (value: string) => {
+    setDestination(value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -103,28 +77,11 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
       <div className="space-y-2">
         <Label htmlFor="destination">Where in Georgia do you want to explore?</Label>
-        <div className="relative">
-          <Input
-            id="destination"
-            placeholder="e.g., Tbilisi, Batumi, Kazbegi..."
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            className="w-full"
-          />
-          {showSuggestions && (
-            <div className="absolute z-10 w-full bg-white shadow-lg rounded-md mt-1 max-h-60 overflow-auto">
-              {suggestions.map((city) => (
-                <div
-                  key={city}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleDestinationSelect(city)}
-                >
-                  {city}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <LocationSearch 
+          value={destination}
+          onChange={handleLocationChange}
+          placeholder="Search for cities in Georgia..."
+        />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,11 +158,12 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading }) => {
         <Label htmlFor="activities">
           Preferences (Optional)
         </Label>
-        <Input
+        <Textarea
           id="activities"
-          placeholder="e.g., hiking, wine tasting, historical sites..."
+          placeholder="e.g., hiking, wine tasting, historical sites, family-friendly activities..."
           value={activities}
           onChange={(e) => setActivities(e.target.value)}
+          className="min-h-[100px]"
         />
       </div>
       
