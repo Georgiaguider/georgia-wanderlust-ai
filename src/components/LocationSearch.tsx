@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define the props for the component
 interface LocationSearchProps {
@@ -11,12 +12,13 @@ interface LocationSearchProps {
   label?: string;
 }
 
-// Define types for Google Maps API
-declare global {
-  interface Window {
-    google: any;
-    initMap?: () => void;
-  }
+interface Prediction {
+  description: string;
+  place_id: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
 }
 
 const LocationSearch: React.FC<LocationSearchProps> = ({ 
@@ -25,58 +27,47 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   placeholder = "Search for a location in Georgia...",
   label
 }) => {
-  const [predictions, setPredictions] = useState<any[]>([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Google Maps Autocomplete
   useEffect(() => {
-    // Check if Google Maps API is already loaded
-    if (!window.google || !window.google.maps || !window.google.maps.places) {
-      // If not loaded, we need the API key from the environment
-      console.warn("Google Maps API is not loaded yet.");
-      return;
-    }
-
-    const autocompleteService = new window.google.maps.places.AutocompleteService();
-    const displaySuggestions = (input: string) => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    const fetchPredictions = async (input: string) => {
       if (input === '') {
         setPredictions([]);
         setShowPredictions(false);
         return;
       }
-      
-      // Restrict results to Georgia the country
-      autocompleteService.getPlacePredictions(
-        {
-          input,
-          componentRestrictions: { country: 'ge' },
-          types: ['(cities)'],
-        },
-        (predictions: any[], status: string) => {
-          if (status !== window.google.maps.places.PlacesServiceStatus.OK || !predictions) {
-            setPredictions([]);
-            setShowPredictions(false);
-            return;
-          }
-          
-          setPredictions(predictions);
+
+      try {
+        const { data, error } = await supabase.functions.invoke('google-places', {
+          body: { input }
+        });
+
+        if (error) {
+          console.error('Error fetching predictions:', error);
+          return;
+        }
+
+        if (data.predictions) {
+          setPredictions(data.predictions);
           setShowPredictions(true);
         }
-      );
+      } catch (error) {
+        console.error('Error:', error);
+      }
     };
 
-    // Debounce the input to avoid too many API calls
-    let timeoutId: NodeJS.Timeout | null = null;
-    
     const handleInput = (input: string) => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
       
       timeoutId = setTimeout(() => {
-        displaySuggestions(input);
+        fetchPredictions(input);
       }, 300);
     };
 
@@ -84,7 +75,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       handleInput(value);
     }
 
-    // Clean up
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -128,7 +118,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className="pl-10 w-full"
-          onFocus={() => value && setPredictions.length > 0 && setShowPredictions(true)}
+          onFocus={() => value && predictions.length > 0 && setShowPredictions(true)}
         />
       </div>
       
