@@ -63,7 +63,12 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
   }, [initialDestination, form]);
 
   function handleFormSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit(values);
+    const formattedValues = {
+      ...values,
+      activities: values.activities || ""
+    };
+    
+    onSubmit(formattedValues);
   }
 
   return (
@@ -124,6 +129,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
                       date < new Date()
                     }
                     initialFocus
+                    className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>
@@ -166,6 +172,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
                       date < new Date() || (form.getValues("startDate") && date < form.getValues("startDate"))
                     }
                     initialFocus
+                    className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>
