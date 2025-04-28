@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-semibold text-lg mb-3">Georgia Explorer</h3>
+            <h3 className="font-semibold text-lg mb-3">Georgia Guider</h3>
             <p className="text-gray-600">
               Discover the beauty of Georgia with AI-powered travel itineraries.
             </p>
@@ -25,14 +25,14 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-3">Contact</h3>
             <p className="text-gray-600">
               Have questions? Email us at:<br />
-              <a href="mailto:info@georgiaexplorer.com" className="text-georgia-blue hover:underline">
-                info@georgiaexplorer.com
+              <a href="mailto:info@georgiaguider.com" className="text-georgia-blue hover:underline">
+                info@georgiaguider.com
               </a>
             </p>
           </div>
         </div>
         <div className="mt-8 pt-4 border-t border-gray-200 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} Georgia Explorer. All rights reserved.
+          © {new Date().getFullYear()} Georgia Guider. All rights reserved.
         </div>
       </div>
     </footer>

@@ -31,6 +31,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -42,11 +43,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       if (input.trim() === '') {
         setPredictions([]);
         setShowPredictions(false);
+        setSearchError(null);
         return;
       }
 
       try {
         setIsLoading(true);
+        setSearchError(null);
+        
+        console.log('Fetching predictions for:', input);
         const { data, error } = await supabase.functions.invoke('google-places', {
           body: { input }
         });
@@ -55,6 +60,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
         if (error) {
           console.error('Error fetching predictions:', error);
+          setSearchError('Failed to load suggestions');
           toast({
             title: "Error loading suggestions",
             description: "Could not load location suggestions. Please try typing your destination.",
@@ -66,9 +72,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         if (data.predictions && Array.isArray(data.predictions)) {
           console.log('Predictions received:', data.predictions.length);
           setPredictions(data.predictions);
-          setShowPredictions(true);
+          setShowPredictions(data.predictions.length > 0);
         } else if (data.error_message) {
           console.error('Google Places API error:', data.error_message);
+          setSearchError('API Error: ' + data.error_message);
           toast({
             title: "API Error",
             description: "There was an issue with the location service. Please try again later.",
@@ -77,9 +84,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         } else {
           console.log('No predictions found or invalid response format', data);
           setPredictions([]);
+          setShowPredictions(input.trim() !== '');
         }
       } catch (error) {
         setIsLoading(false);
+        setSearchError('Error fetching suggestions');
         console.error('Error:', error);
         toast({
           title: "Error",
@@ -181,9 +190,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         </div>
       )}
       
-      {showPredictions && predictions.length === 0 && !isLoading && value.trim() !== '' && (
+      {showPredictions && predictions.length === 0 && !isLoading && value.trim() !== '' && !searchError && (
         <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg p-4 text-center text-gray-500">
-          No locations found in Georgia matching your search
+          No locations found in Georgia matching your search. Try another location.
+        </div>
+      )}
+      
+      {searchError && !isLoading && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-red-200 rounded-md shadow-lg p-4 text-center text-red-500">
+          {searchError}
         </div>
       )}
     </div>

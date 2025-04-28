@@ -16,7 +16,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <h1 className="text-xl font-bold text-georgia-red">
-            <Link to="/">Georgia Explorer</Link>
+            <Link to="/">Georgia Guider</Link>
           </h1>
         </div>
         

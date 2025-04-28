@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -18,13 +18,24 @@ const Create = () => {
   const [itinerary, setItinerary] = useState<ItineraryDay[] | null>(null);
   const { toast } = useToast();
   const location = useLocation();
+  const formRef = useRef<HTMLElement>(null);
 
   // Extract destination from URL query params if present
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const urlDestination = params.get('destination');
     if (urlDestination) {
       setDestination(urlDestination);
+      
+      // Scroll to form when destination is set from URL
+      setTimeout(() => {
+        if (formRef.current) {
+          window.scrollTo({
+            top: formRef.current.offsetTop - 100,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
     }
   }, [location.search]);
 
@@ -114,7 +125,7 @@ const Create = () => {
       
       <main className="flex-grow">
         {/* Form Section */}
-        <section className="modern-gradient py-16">
+        <section ref={formRef} className="modern-gradient py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto">
               <h1 className="text-4xl font-bold mb-2 text-center font-playfair">Plan Your Georgian Adventure</h1>
@@ -124,6 +135,7 @@ const Create = () => {
                   <TravelForm 
                     onSubmit={handleFormSubmit} 
                     isLoading={isLoading}
+                    initialDestination={destination}
                   />
                 </div>
               </div>

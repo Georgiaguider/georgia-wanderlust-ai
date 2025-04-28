@@ -17,7 +17,15 @@ Deno.serve(async (req) => {
     const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
 
     if (!GOOGLE_MAPS_API_KEY) {
-      throw new Error('Missing Google Maps API key');
+      console.error('Missing Google Maps API key');
+      return new Response(
+        JSON.stringify({ 
+          error: true, 
+          message: 'Missing API key configuration',
+          predictions: [] 
+        }), 
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
     }
 
     // Make sure we're only querying for cities in Georgia (country)
@@ -26,11 +34,29 @@ Deno.serve(async (req) => {
     console.log(`Fetching Google Places API: ${url.replace(GOOGLE_MAPS_API_KEY, 'API_KEY_REDACTED')}`);
     
     const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Google API returned status ${response.status}`);
+    }
+    
     const data = await response.json();
 
     console.log(`Google Places API response status: ${data.status}`);
+    
     if (data.status !== 'OK' && data.error_message) {
       console.error(`Google Places API error: ${data.error_message}`);
+    }
+    
+    // Return empty predictions array if status is not OK to prevent frontend errors
+    if (data.status !== 'OK') {
+      return new Response(
+        JSON.stringify({ 
+          status: data.status, 
+          error_message: data.error_message || 'No results found', 
+          predictions: [] 
+        }), 
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
     }
 
     return new Response(JSON.stringify(data), {
@@ -39,9 +65,13 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error('Error:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: true, 
+        message: error.message,
+        predictions: [] 
+      }), 
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    );
   }
 });
