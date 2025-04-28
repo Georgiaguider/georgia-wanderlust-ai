@@ -37,14 +37,14 @@ export const generateItinerary = async (request: ItineraryRequest): Promise<Itin
     const { destination, startDate, endDate, travelStyle, activities } = request;
     const numberOfDays = getDaysBetween(startDate, endDate);
     
-    // In a real implementation, we would fetch from the OpenAI API here
-    // For now, we'll call our Supabase Edge Function
     console.log("Generating itinerary for:", { destination, startDate, endDate, travelStyle, activities, numberOfDays });
     
-    const response = await fetch('/api/generate-itinerary', {
+    // Use the Supabase Edge Function instead of a local API endpoint
+    const { data, error } = await fetch('https://kjiceckxywowbefmccrw.supabase.co/functions/v1/generate-itinerary', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaWNlY2t4eXdvd2JlZm1jY3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU3NDY4ODUsImV4cCI6MjA2MTMyMjg4NX0.4xqF7YEevLidBbbxhVs2VhfuHekwhlXxZIuJOCSRB3U'
       },
       body: JSON.stringify({
         destination,
@@ -54,13 +54,17 @@ export const generateItinerary = async (request: ItineraryRequest): Promise<Itin
         travelStyle,
         activities
       }),
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      return response.json();
     });
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const data = await response.json();
     return data.itinerary;
   } catch (error) {
     console.error("Error generating itinerary:", error);
