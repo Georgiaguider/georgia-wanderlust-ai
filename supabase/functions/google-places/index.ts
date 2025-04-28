@@ -28,8 +28,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Make sure we're only querying for cities in Georgia (country)
-    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:ge&types=(cities)&language=en&key=${GOOGLE_MAPS_API_KEY}`;
+    // Now we're using the correct parameters for the Places Autocomplete API
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=locality&components=country:ge&language=en&key=${GOOGLE_MAPS_API_KEY}`;
     
     console.log(`Fetching Google Places API: ${url.replace(GOOGLE_MAPS_API_KEY, 'API_KEY_REDACTED')}`);
     

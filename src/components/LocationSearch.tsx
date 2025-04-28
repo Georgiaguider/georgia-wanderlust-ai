@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -35,10 +35,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-    
     const fetchPredictions = async (input: string) => {
       if (input.trim() === '') {
         setPredictions([]);
@@ -76,11 +75,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         } else if (data.error_message) {
           console.error('Google Places API error:', data.error_message);
           setSearchError('API Error: ' + data.error_message);
-          toast({
-            title: "API Error",
-            description: "There was an issue with the location service. Please try again later.",
-            variant: "destructive",
-          });
+          if (data.error_message.includes('not authorized')) {
+            toast({
+              title: "API Configuration Issue",
+              description: "The Google Maps API key needs to be configured properly. Please check the API settings.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "API Error",
+              description: "There was an issue with the location service. Please try again later.",
+              variant: "destructive",
+            });
+          }
         } else {
           console.log('No predictions found or invalid response format', data);
           setPredictions([]);
@@ -98,23 +105,22 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       }
     };
 
-    const handleInput = (input: string) => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      
-      timeoutId = setTimeout(() => {
-        fetchPredictions(input);
-      }, 300);
-    };
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-    if (value) {
-      handleInput(value);
+    if (value && value.trim().length > 1) {
+      timeoutRef.current = setTimeout(() => {
+        fetchPredictions(value);
+      }, 300);
+    } else {
+      setPredictions([]);
+      setShowPredictions(false);
     }
 
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, [value, toast]);
@@ -159,7 +165,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin h-4 w-4 border-2 border-gray-500 border-t-transparent rounded-full"></div>
+            <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
           </div>
         )}
       </div>
