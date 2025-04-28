@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, XCircle, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -32,6 +32,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const [showPredictions, setShowPredictions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [apiKeyError, setApiKeyError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const predictionsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -49,6 +50,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       try {
         setIsLoading(true);
         setSearchError(null);
+        setApiKeyError(false);
         
         console.log('Fetching predictions for:', input);
         const { data, error } = await supabase.functions.invoke('google-places', {
@@ -68,6 +70,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           return;
         }
 
+        // Check for API key configuration issues
+        if (data.api_error && data.api_error.includes('API project is not authorized')) {
+          console.error('Google Maps API key needs to be configured:', data.api_error);
+          setApiKeyError(true);
+          toast({
+            title: "API Configuration Issue",
+            description: "The Google Maps API key needs to be configured with Places API access. Please check your API settings.",
+            variant: "destructive",
+          });
+          setPredictions([]);
+          setShowPredictions(false);
+          return;
+        }
+
         if (data.predictions && Array.isArray(data.predictions)) {
           console.log('Predictions received:', data.predictions.length);
           setPredictions(data.predictions);
@@ -75,19 +91,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         } else if (data.error_message) {
           console.error('Google Places API error:', data.error_message);
           setSearchError('API Error: ' + data.error_message);
-          if (data.error_message.includes('not authorized')) {
-            toast({
-              title: "API Configuration Issue",
-              description: "The Google Maps API key needs to be configured properly. Please check the API settings.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "API Error",
-              description: "There was an issue with the location service. Please try again later.",
-              variant: "destructive",
-            });
-          }
+          toast({
+            title: "API Error",
+            description: "There was an issue with the location service. Please try again later.",
+            variant: "destructive",
+          });
         } else {
           console.log('No predictions found or invalid response format', data);
           setPredictions([]);
@@ -144,6 +152,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     };
   }, []);
 
+  const handleClearInput = () => {
+    onChange('');
+    setPredictions([]);
+    setShowPredictions(false);
+    setSearchError(null);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
     <div className="relative w-full">
       {label && (
@@ -160,9 +178,18 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="pl-10 w-full"
+          className="pl-10 pr-10 w-full"
           onFocus={() => value && predictions.length > 0 && setShowPredictions(true)}
         />
+        {value && (
+          <button
+            type="button"
+            onClick={handleClearInput}
+            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <XCircle className="h-4 w-4" />
+          </button>
+        )}
         {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
@@ -196,13 +223,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         </div>
       )}
       
-      {showPredictions && predictions.length === 0 && !isLoading && value.trim() !== '' && !searchError && (
+      {showPredictions && predictions.length === 0 && !isLoading && value.trim() !== '' && !searchError && !apiKeyError && (
         <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg p-4 text-center text-gray-500">
           No locations found in Georgia matching your search. Try another location.
         </div>
       )}
       
-      {searchError && !isLoading && (
+      {apiKeyError && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-red-200 rounded-md shadow-lg p-4 text-center text-red-500 flex items-center justify-center">
+          <AlertCircle className="mr-2 h-4 w-4" />
+          Google Maps API key needs proper configuration
+        </div>
+      )}
+      
+      {searchError && !isLoading && !apiKeyError && (
         <div className="absolute z-50 mt-1 w-full bg-white border border-red-200 rounded-md shadow-lg p-4 text-center text-red-500">
           {searchError}
         </div>

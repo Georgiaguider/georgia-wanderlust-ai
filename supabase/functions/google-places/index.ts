@@ -28,8 +28,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Now we're using the correct parameters for the Places Autocomplete API
-    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=locality&components=country:ge&language=en&key=${GOOGLE_MAPS_API_KEY}`;
+    // Use correct parameters and enable all types of places for better results
+    // Note: Removing the type restriction to get more results
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:ge&language=en&key=${GOOGLE_MAPS_API_KEY}`;
     
     console.log(`Fetching Google Places API: ${url.replace(GOOGLE_MAPS_API_KEY, 'API_KEY_REDACTED')}`);
     
@@ -45,6 +46,20 @@ Deno.serve(async (req) => {
     
     if (data.status !== 'OK' && data.error_message) {
       console.error(`Google Places API error: ${data.error_message}`);
+      
+      // Check for specific API key issues
+      if (data.error_message.includes('API project is not authorized') || 
+          data.error_message.includes('API key')) {
+        return new Response(
+          JSON.stringify({ 
+            status: data.status, 
+            error_message: 'Google Maps API key needs to be configured with Places API access', 
+            api_error: data.error_message,
+            predictions: [] 
+          }), 
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
     }
     
     // Return empty predictions array if status is not OK to prevent frontend errors

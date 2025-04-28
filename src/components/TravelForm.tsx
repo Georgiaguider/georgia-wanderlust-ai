@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -42,10 +41,12 @@ const formSchema = z.object({
   activities: z.string().optional(),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, initialDestination = "" }) => {
   const [destination, setDestination] = useState(initialDestination);
   
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       destination: initialDestination,
@@ -63,23 +64,14 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
     }
   }, [initialDestination, form]);
 
-  function handleFormSubmit(values: z.infer<typeof formSchema>) {
-    // Explicitly create an object with all required properties to satisfy TypeScript
-    const formattedValues: {
-      destination: string;
-      startDate: Date;
-      endDate: Date;
-      travelStyle: string;
-      activities: string;
-    } = {
+  function handleFormSubmit(values: FormValues) {
+    onSubmit({
       destination: values.destination,
       startDate: values.startDate,
       endDate: values.endDate,
       travelStyle: values.travelStyle,
       activities: values.activities || ""
-    };
-    
-    onSubmit(formattedValues);
+    });
   }
 
   return (
