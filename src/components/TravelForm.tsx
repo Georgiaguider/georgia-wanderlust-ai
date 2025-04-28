@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -63,8 +64,18 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
   }, [initialDestination, form]);
 
   function handleFormSubmit(values: z.infer<typeof formSchema>) {
-    const formattedValues = {
-      ...values,
+    // Explicitly create an object with all required properties to satisfy TypeScript
+    const formattedValues: {
+      destination: string;
+      startDate: Date;
+      endDate: Date;
+      travelStyle: string;
+      activities: string;
+    } = {
+      destination: values.destination,
+      startDate: values.startDate,
+      endDate: values.endDate,
+      travelStyle: values.travelStyle,
       activities: values.activities || ""
     };
     
