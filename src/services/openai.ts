@@ -39,8 +39,8 @@ export const generateItinerary = async (request: ItineraryRequest): Promise<Itin
     
     console.log("Generating itinerary for:", { destination, startDate, endDate, travelStyle, activities, numberOfDays });
     
-    // Use the Supabase Edge Function instead of a local API endpoint
-    const { data, error } = await fetch('https://kjiceckxywowbefmccrw.supabase.co/functions/v1/generate-itinerary', {
+    // Call the Supabase Edge Function
+    const response = await fetch('https://kjiceckxywowbefmccrw.supabase.co/functions/v1/generate-itinerary', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,17 +54,18 @@ export const generateItinerary = async (request: ItineraryRequest): Promise<Itin
         travelStyle,
         activities
       }),
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      return response.json();
     });
 
-    if (error) {
-      throw new Error(error.message);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
     }
-
+    
+    const data = await response.json();
+    
+    if (data.fallback) {
+      console.log("Using fallback itinerary data due to API limitations");
+    }
+    
     return data.itinerary;
   } catch (error) {
     console.error("Error generating itinerary:", error);
