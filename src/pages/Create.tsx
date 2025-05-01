@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import TravelForm from '@/components/TravelForm';
@@ -18,6 +17,7 @@ const Create = () => {
   const [itinerary, setItinerary] = useState<ItineraryDay[] | null>(null);
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   const formRef = useRef<HTMLElement>(null);
 
   // Extract destination from URL query params if present
@@ -75,13 +75,16 @@ const Create = () => {
 
       setItinerary(generatedItinerary);
       
-      // Scroll to itinerary results
-      setTimeout(() => {
-        window.scrollTo({
-          top: 350,
-          behavior: 'smooth'
-        });
-      }, 100);
+      // Navigate to the itinerary view page with the generated data
+      navigate('/itinerary', {
+        state: {
+          destination: formData.destination,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          travelStyle: formData.travelStyle,
+          itinerary: generatedItinerary
+        }
+      });
       
     } catch (error) {
       console.error("Error generating itinerary:", error);
@@ -142,24 +145,6 @@ const Create = () => {
             </div>
           </div>
         </section>
-        
-        {/* Results Section */}
-        {itinerary && (
-          <section className="py-16 bg-white">
-            <div className="container mx-auto px-4">
-              <ItineraryDisplay 
-                destination={destination}
-                startDate={startDate!}
-                endDate={endDate!}
-                travelStyle={travelStyle}
-                itinerary={itinerary}
-                onDownload={handleDownload}
-                onEmail={handleEmailItinerary}
-                onNewItinerary={handleNewItinerary}
-              />
-            </div>
-          </section>
-        )}
         
         {/* Tips Section */}
         <section className="py-16 bg-gray-50">
