@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -98,7 +97,9 @@ const Create = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header right={<HeaderExtension />} />
+      <Header>
+        <HeaderExtension />
+      </Header>
       
       <main className="flex-grow">
         {/* Form Section */}
