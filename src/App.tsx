@@ -9,6 +9,11 @@ import About from "./pages/About";
 import Create from "./pages/Create";
 import ItineraryView from "./pages/ItineraryView";
 import SavedItineraries from "./pages/SavedItineraries";
+import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Disclaimer from "./pages/Disclaimer";
+import Affiliate from "./pages/Affiliate";
 import NotFound from "./pages/NotFound";
 import "./styles/print.css";
 
@@ -33,6 +38,11 @@ const App = () => (
           <Route path="/create" element={<Create />} />
           <Route path="/itinerary" element={<ItineraryView />} />
           <Route path="/saved" element={<SavedItineraries />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/affiliate" element={<Affiliate />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
