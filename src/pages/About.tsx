@@ -27,10 +27,7 @@ const About = () => {
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-6 text-center">Our Story</h2>
               <div className="prose prose-lg mx-auto">
-                <p>
-                  Georgia Wanderlust AI was created by a team of travel enthusiasts who fell in love with
-                  the diverse landscapes, rich history, and warm hospitality of Georgia.
-                </p>
+                <p>Georgia Guider was created by a team of travel enthusiasts who fell in love with the diverse landscapes, rich history, and warm hospitality of Georgia.</p>
                 <p>
                   After numerous trips to various regions of this beautiful country, we realized that
                   many travelers struggle to plan their Georgian adventure efficiently. There's so much
