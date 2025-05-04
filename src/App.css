@@ -19,3 +19,8 @@
   transform: translateY(-5px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
+
+/* Hero section gradient */
+.hero-gradient {
+  background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+}

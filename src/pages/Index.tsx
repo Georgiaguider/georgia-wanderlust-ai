@@ -8,12 +8,12 @@ import { MapPin, Calendar, Star, ArrowRight, Check } from 'lucide-react';
 
 // Import destination images
 const destinationImages = {
-  Tbilisi: "/destinations/tbilisi.jpg",
-  Batumi: "/destinations/batumi.jpg",
-  Kazbegi: "/destinations/kazbegi.jpg",
-  Kakheti: "/destinations/kakheti.jpg",
-  Svaneti: "/destinations/svaneti.jpg",
-  Kutaisi: "/destinations/kutaisi.jpg",
+  Tbilisi: "/lovable-uploads/07b29313-7486-4a6e-abf3-5fecded61baf.png", // Tbilisi city view
+  Batumi: "/lovable-uploads/56013aa6-7054-46d9-8169-94ea28bbcb83.png", // Batumi skyline
+  Kazbegi: "/lovable-uploads/9af6ce71-a815-450f-9506-897eb3a8b520.png", // Gergeti Trinity Church with mountains
+  Kakheti: "/lovable-uploads/9c84b7bd-806b-444d-b9af-3a0aa430cffc.png", // Alaverdi Monastery in valley
+  Svaneti: "/lovable-uploads/01836844-f5c2-4b32-ab7d-efe249aeb5ec.png", // Monastery on cliffside
+  Kutaisi: "/lovable-uploads/8a9ee10d-2fea-4d60-86dc-555b8112a9e2.png", // Village with mountains
 };
 
 const Index = () => {
@@ -59,7 +59,7 @@ const Index = () => {
               
               <div className="rounded-2xl overflow-hidden shadow-xl hidden lg:block">
                 <img 
-                  src="https://images.unsplash.com/photo-1584626177287-b69c2f42b12a?auto=format&q=75&fit=crop&w=1200&h=800" 
+                  src="/lovable-uploads/07b29313-7486-4a6e-abf3-5fecded61baf.png"
                   alt="Tbilisi, Georgia" 
                   className="w-full h-full object-cover"
                 />
@@ -179,12 +179,12 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {[
-                { name: "Tbilisi", image: "https://images.unsplash.com/photo-1565611642362-859fd5b6512e?auto=format&q=75&fit=crop&w=600&h=400" },
-                { name: "Batumi", image: "https://images.unsplash.com/photo-1589308454676-3812caa47595?auto=format&q=75&fit=crop&w=600&h=400" },
-                { name: "Kazbegi", image: "https://images.unsplash.com/photo-1559060680-7da200181f0c?auto=format&q=75&fit=crop&w=600&h=400" },
-                { name: "Kakheti", image: "https://images.unsplash.com/photo-1583850432742-a44482570a9f?auto=format&q=75&fit=crop&w=600&h=400" },
-                { name: "Svaneti", image: "https://images.unsplash.com/photo-1563284223-333497724b54?auto=format&q=75&fit=crop&w=600&h=400" },
-                { name: "Kutaisi", image: "https://images.unsplash.com/photo-1591474170743-e95577e899b7?auto=format&q=75&fit=crop&w=600&h=400" },
+                { name: "Tbilisi", image: destinationImages.Tbilisi },
+                { name: "Batumi", image: destinationImages.Batumi },
+                { name: "Kazbegi", image: destinationImages.Kazbegi },
+                { name: "Kakheti", image: destinationImages.Kakheti },
+                { name: "Svaneti", image: destinationImages.Svaneti },
+                { name: "Kutaisi", image: destinationImages.Kutaisi },
               ].map((destination) => (
                 <Link
                   to={`/create?destination=${destination.name}`}
@@ -199,7 +199,7 @@ const Index = () => {
                     onError={(e) => {
                       // Fallback image if the original fails to load
                       const target = e.target as HTMLImageElement;
-                      target.src = "https://images.unsplash.com/photo-1589308454676-3812caa47595?auto=format&q=75&fit=crop&w=600&h=400";
+                      target.src = "/placeholder.svg";
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-transparent flex items-end">
