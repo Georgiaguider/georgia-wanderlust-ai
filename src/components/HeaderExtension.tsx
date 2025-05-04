@@ -8,17 +8,15 @@ const HeaderExtension = () => {
   const location = useLocation();
   
   return (
-    <div className="hidden md:block no-print">
-      <Link 
-        to="/saved" 
-        className={`ml-6 flex items-center gap-2 hover:text-georgia-red transition-colors ${
-          location.pathname === '/saved' ? 'text-georgia-red' : ''
-        }`}
-      >
-        <Bookmark size={16} />
-        Saved Itineraries
-      </Link>
-    </div>
+    <Link 
+      to="/saved" 
+      className={`flex items-center gap-2 hover:text-georgia-red transition-colors ${
+        location.pathname === '/saved' ? 'text-georgia-red' : ''
+      } md:ml-6 no-print`}
+    >
+      <Bookmark size={16} />
+      Saved Itineraries
+    </Link>
   );
 };
 

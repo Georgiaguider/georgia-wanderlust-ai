@@ -1,10 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
-const Header = () => {
+interface HeaderProps {
+  children?: ReactNode;
+}
+
+const Header: React.FC<HeaderProps> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -21,7 +25,7 @@ const Header = () => {
         </div>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-4">
+        <nav className="hidden md:flex space-x-4 items-center">
           <Button variant="ghost" asChild>
             <Link to="/">Home</Link>
           </Button>
@@ -31,6 +35,7 @@ const Header = () => {
           <Button variant="outline" className="bg-georgia-red text-white hover:bg-georgia-red/90" asChild>
             <Link to="/create">Plan Your Trip</Link>
           </Button>
+          {children}
         </nav>
         
         {/* Mobile Menu Button */}
@@ -57,6 +62,11 @@ const Header = () => {
             >
               <Link to="/create">Plan Your Trip</Link>
             </Button>
+            {children && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                {children}
+              </div>
+            )}
           </nav>
         </div>
       )}
