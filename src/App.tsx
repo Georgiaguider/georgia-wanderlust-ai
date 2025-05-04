@@ -8,7 +8,9 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Create from "./pages/Create";
 import ItineraryView from "./pages/ItineraryView";
+import SavedItineraries from "./pages/SavedItineraries";
 import NotFound from "./pages/NotFound";
+import "./styles/print.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +32,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/create" element={<Create />} />
           <Route path="/itinerary" element={<ItineraryView />} />
+          <Route path="/saved" element={<SavedItineraries />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

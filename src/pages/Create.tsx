@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import TravelForm from '@/components/TravelForm';
-import ItineraryDisplay from '@/components/ItineraryDisplay';
 import { useToast } from '@/components/ui/use-toast';
 import { generateItinerary, ItineraryDay } from '@/services/openai';
 import { format, addDays, differenceInDays } from 'date-fns';
+import HeaderExtension from '@/components/HeaderExtension';
 
 const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +15,6 @@ const Create = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(addDays(new Date(), 5));
   const [travelStyle, setTravelStyle] = useState('mid-range');
-  const [itinerary, setItinerary] = useState<ItineraryDay[] | null>(null);
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -73,8 +73,6 @@ const Create = () => {
         activities: formData.activities
       });
 
-      setItinerary(generatedItinerary);
-      
       // Navigate to the itinerary view page with the generated data
       navigate('/itinerary', {
         state: {
@@ -98,42 +96,18 @@ const Create = () => {
     }
   };
 
-  const handleDownload = () => {
-    toast({
-      title: "Download started",
-      description: "Your itinerary is being prepared as a PDF.",
-    });
-    // PDF generation would be implemented here in a real application
-  };
-
-  const handleEmailItinerary = () => {
-    toast({
-      title: "Email feature",
-      description: "This feature will be available soon!",
-    });
-    // Email functionality would be implemented here in a real application
-  };
-
-  const handleNewItinerary = () => {
-    setItinerary(null);
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header right={<HeaderExtension />} />
       
       <main className="flex-grow">
         {/* Form Section */}
         <section ref={formRef} className="modern-gradient py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto">
-              <h1 className="text-4xl font-bold mb-2 text-center font-playfair">Plan Your Georgian Adventure</h1>
-              <p className="text-center text-gray-600 mb-8">Create your personalized travel itinerary in seconds</p>
-              <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
+              <h1 className="text-4xl font-bold mb-2 text-center font-playfair animate-fade-in">Plan Your Georgian Adventure</h1>
+              <p className="text-center text-gray-600 mb-8 animate-fade-in" style={{ animationDelay: "100ms" }}>Create your personalized travel itinerary in seconds</p>
+              <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100 animate-fade-in" style={{ animationDelay: "200ms" }}>
                 <div className="p-8">
                   <TravelForm 
                     onSubmit={handleFormSubmit} 

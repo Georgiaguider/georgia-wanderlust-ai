@@ -1,0 +1,85 @@
+
+@media print {
+  /* Global print styles */
+  body {
+    background-color: white !important;
+    font-size: 12pt;
+    color: black;
+  }
+  
+  /* Hide elements not needed for printing */
+  header, footer, button, 
+  nav, .no-print,
+  [role="navigation"],
+  .animate-fade-in {
+    display: none !important;
+  }
+  
+  /* Container and layout adjustments */
+  .container, .px-4, .py-8 {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  main {
+    background-color: white !important;
+  }
+  
+  /* Itinerary specific styles */
+  .itinerary-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #ddd !important;
+    margin-bottom: 20px !important;
+    box-shadow: none !important;
+    background-color: white !important;
+  }
+  
+  /* Headers and text */
+  h1 {
+    font-size: 24pt !important;
+    margin-bottom: 15px !important;
+  }
+  
+  h2, h3 {
+    font-size: 16pt !important;
+    margin-bottom: 10px !important;
+  }
+  
+  p, li {
+    font-size: 12pt !important;
+  }
+  
+  /* Card and badge styling for print */
+  .card, .badge {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  /* Colors for print - simplify and make dark enough */
+  .text-georgia-red, .text-georgia-blue {
+    color: black !important;
+  }
+  
+  /* Links */
+  a {
+    text-decoration: underline;
+    color: black !important;
+  }
+  
+  /* Background colors */
+  .bg-gray-50, .bg-white, .bg-gray-100 {
+    background-color: white !important;
+  }
+  
+  /* Ensure page breaks are clean */
+  .itinerary-card {
+    page-break-after: always;
+  }
+  
+  /* Remove rounded corners */
+  .rounded, .rounded-lg, .rounded-xl {
+    border-radius: 0 !important;
+  }
+}

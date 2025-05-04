@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Download, Mail, RefreshCw } from "lucide-react";
+import { Calendar, Download, Mail, RefreshCw, Bookmark, Heart, Printer } from "lucide-react";
 import { format } from 'date-fns';
+import { useToast } from '@/components/ui/use-toast';
+import { saveItinerary, toggleFavoriteItinerary } from '@/utils/localStorage';
 
 interface ItineraryDay {
   day: number;
@@ -29,6 +31,8 @@ interface ItineraryDisplayProps {
   onDownload: () => void;
   onEmail: () => void;
   onNewItinerary: () => void;
+  id?: string;
+  isFavorite?: boolean;
 }
 
 const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({
@@ -39,8 +43,64 @@ const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({
   itinerary,
   onDownload,
   onEmail,
-  onNewItinerary
+  onNewItinerary,
+  id,
+  isFavorite = false
 }) => {
+  const { toast } = useToast();
+  const [favorite, setFavorite] = React.useState(isFavorite);
+
+  const handleSave = () => {
+    try {
+      const savedId = saveItinerary({
+        destination,
+        startDate,
+        endDate,
+        travelStyle,
+        itinerary,
+      });
+      
+      toast({
+        title: "Itinerary saved",
+        description: "Your itinerary has been saved and can be accessed later.",
+      });
+      
+      return savedId;
+    } catch (error) {
+      console.error("Failed to save itinerary:", error);
+      toast({
+        title: "Save failed",
+        description: "Could not save your itinerary. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    let itineraryId = id;
+    
+    // If we don't have an ID, save the itinerary first
+    if (!itineraryId) {
+      itineraryId = handleSave();
+      if (!itineraryId) return;
+    }
+    
+    const isFav = toggleFavoriteItinerary(itineraryId);
+    setFavorite(isFav);
+    
+    toast({
+      title: isFav ? "Added to favorites" : "Removed from favorites",
+      description: isFav 
+        ? "This itinerary has been added to your favorites." 
+        : "This itinerary has been removed from your favorites."
+    });
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto animate-fade-in">
       <div className="bg-white rounded-xl shadow-md p-8 mb-8 border border-gray-100">
@@ -63,15 +123,35 @@ const ItineraryDisplay: React.FC<ItineraryDisplayProps> = ({
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+            <Button 
+              variant="outline" 
+              onClick={handleSave} 
+              className="flex items-center gap-2"
+            >
+              <Bookmark size={16} />
+              Save
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleToggleFavorite} 
+              className={`flex items-center gap-2 ${favorite ? 'text-red-500' : ''}`}
+            >
+              <Heart size={16} fill={favorite ? "currentColor" : "none"} />
+              {favorite ? 'Favorited' : 'Favorite'}
+            </Button>
             <Button variant="outline" onClick={onDownload} className="flex items-center gap-2">
               <Download size={16} />
               Download PDF
             </Button>
-            <Button variant="outline" onClick={onEmail} className="flex items-center gap-2">
-              <Mail size={16} />
-              Email Itinerary
+            <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2 no-print">
+              <Printer size={16} />
+              Print
             </Button>
-            <Button variant="outline" onClick={onNewItinerary} className="flex items-center gap-2">
+            <Button variant="outline" onClick={onEmail} className="flex items-center gap-2 no-print">
+              <Mail size={16} />
+              Email
+            </Button>
+            <Button variant="outline" onClick={onNewItinerary} className="flex items-center gap-2 no-print">
               <RefreshCw size={16} />
               New Itinerary
             </Button>
