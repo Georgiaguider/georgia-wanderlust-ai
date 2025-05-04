@@ -1,10 +1,20 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Logo from '@/components/Logo';
 import { MapPin, Calendar, Star, ArrowRight, Check } from 'lucide-react';
+
+// Import destination images
+const destinationImages = {
+  Tbilisi: "/destinations/tbilisi.jpg",
+  Batumi: "/destinations/batumi.jpg",
+  Kazbegi: "/destinations/kazbegi.jpg",
+  Kakheti: "/destinations/kakheti.jpg",
+  Svaneti: "/destinations/svaneti.jpg",
+  Kutaisi: "/destinations/kutaisi.jpg",
+};
 
 const Index = () => {
   return (
@@ -185,6 +195,12 @@ const Index = () => {
                     src={destination.image} 
                     alt={destination.name} 
                     className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700 ease-in-out"
+                    loading="lazy"
+                    onError={(e) => {
+                      // Fallback image if the original fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://images.unsplash.com/photo-1589308454676-3812caa47595?auto=format&q=75&fit=crop&w=600&h=400";
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-transparent flex items-end">
                     <div className="p-6">

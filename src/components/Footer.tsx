@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from "react-router-dom";
+import Logo from './Logo';
 
 const Footer = () => {
   return (
@@ -8,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-semibold text-lg mb-3">Georgia Guider</h3>
+            <Logo className="mb-3 inline-flex" />
             <p className="text-gray-600">
               Discover the beauty of Georgia with AI-powered travel itineraries.
             </p>

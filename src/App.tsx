@@ -15,6 +15,7 @@ import Privacy from "./pages/Privacy";
 import Disclaimer from "./pages/Disclaimer";
 import Affiliate from "./pages/Affiliate";
 import NotFound from "./pages/NotFound";
+import "./App.css";
 import "./styles/print.css";
 
 const queryClient = new QueryClient({
