@@ -1,13 +1,10 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-
 const About = () => {
-  return (
-    <div className="flex flex-col min-h-screen">
+  return <div className="flex flex-col min-h-screen">
       <Header />
       
       <main className="flex-grow">
@@ -15,7 +12,7 @@ const About = () => {
         <section className="georgia-gradient py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl font-bold mb-6">About Georgia Wanderlust AI</h1>
+              <h1 className="text-4xl font-bold mb-6">About Georgia Guider</h1>
               <p className="text-lg text-gray-700">
                 We're passionate about helping travelers discover the beauty and culture of Georgia
                 through personalized, AI-powered travel itineraries.
@@ -126,11 +123,7 @@ const About = () => {
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Create your personalized travel itinerary in seconds with our AI-powered planner.
             </p>
-            <Button 
-              size="lg" 
-              className="bg-white text-georgia-blue hover:bg-georgia-cream"
-              asChild
-            >
+            <Button size="lg" className="bg-white text-georgia-blue hover:bg-georgia-cream" asChild>
               <Link to="/create">Plan My Trip</Link>
             </Button>
           </div>
@@ -138,8 +131,6 @@ const About = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default About;
