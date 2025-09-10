@@ -1,4 +1,3 @@
-
 import { jsPDF } from 'jspdf';
 import { ItineraryDay } from '@/services/openai';
 import { format } from 'date-fns';
@@ -142,4 +141,15 @@ export const generateItineraryPDF = ({
   
   // Save the PDF
   doc.save(`${destination.toLowerCase().replace(/\s+/g, '-')}-itinerary.pdf`);
+};
+
+// Legacy function for backward compatibility
+export const generatePDF = (destination: string, itinerary: ItineraryDay[]) => {
+  generateItineraryPDF({
+    destination,
+    startDate: new Date(),
+    endDate: new Date(),
+    travelStyle: 'mid-range',
+    itinerary
+  });
 };

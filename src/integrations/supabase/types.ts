@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      itineraries: {
+        Row: {
+          activities: string[] | null
+          created_at: string
+          destination: string
+          end_date: string
+          id: string
+          is_fallback: boolean | null
+          itinerary_data: Json
+          number_of_days: number
+          start_date: string
+          travel_style: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activities?: string[] | null
+          created_at?: string
+          destination: string
+          end_date: string
+          id?: string
+          is_fallback?: boolean | null
+          itinerary_data: Json
+          number_of_days: number
+          start_date: string
+          travel_style: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activities?: string[] | null
+          created_at?: string
+          destination?: string
+          end_date?: string
+          id?: string
+          is_fallback?: boolean | null
+          itinerary_data?: Json
+          number_of_days?: number
+          start_date?: string
+          travel_style?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

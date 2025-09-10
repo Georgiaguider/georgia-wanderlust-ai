@@ -11,6 +11,9 @@ import { format, addDays } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import { generateItinerary } from "@/services/openai";
+import { saveItinerary } from "@/services/itineraries";
+import { toast } from "sonner";
 import LocationSearch from './LocationSearch';
 
 export interface TravelFormProps {
@@ -45,6 +48,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, initialDestination = "" }) => {
   const [destination, setDestination] = useState(initialDestination);
+  const [formLoading, setFormLoading] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -64,14 +68,55 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
     }
   }, [initialDestination, form]);
 
-  function handleFormSubmit(values: FormValues) {
-    onSubmit({
-      destination: values.destination,
-      startDate: values.startDate,
-      endDate: values.endDate,
-      travelStyle: values.travelStyle,
-      activities: values.activities || ""
-    });
+  async function handleFormSubmit(values: FormValues) {
+    setFormLoading(true);
+    
+    try {
+      const days = Math.ceil((values.endDate.getTime() - values.startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      const itineraryRequest = {
+        destination: values.destination,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        travelStyle: values.travelStyle,
+        activities: values.activities || "",
+        numberOfDays: days
+      };
+
+      const generatedItinerary = await generateItinerary(itineraryRequest);
+      
+      // Save to database
+      const saved = await saveItinerary(
+        values.destination,
+        values.startDate,
+        values.endDate,
+        values.travelStyle,
+        values.activities ? values.activities.split(',').map(a => a.trim()) : [],
+        days,
+        generatedItinerary,
+        false
+      );
+      
+      if (saved) {
+        toast.success("Itinerary generated and saved successfully!");
+      } else {
+        toast.success("Itinerary generated successfully!");
+        toast.error("Failed to save itinerary to database.");
+      }
+
+      onSubmit({
+        destination: values.destination,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        travelStyle: values.travelStyle,
+        activities: values.activities || ""
+      });
+    } catch (error) {
+      console.error('Error generating itinerary:', error);
+      toast.error("Failed to generate itinerary. Please try again.");
+    } finally {
+      setFormLoading(false);
+    }
   }
 
   return (
@@ -234,8 +279,8 @@ const TravelForm: React.FC<TravelFormProps> = ({ onSubmit, isLoading = false, in
         />
         
         <div className="flex justify-end">
-          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-            {isLoading ? (
+          <Button type="submit" disabled={isLoading || formLoading} className="w-full sm:w-auto">
+            {isLoading || formLoading ? (
               <>
                 <span className="animate-spin mr-2 inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
                 Generating Itinerary...
