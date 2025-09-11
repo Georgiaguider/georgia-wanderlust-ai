@@ -5,21 +5,26 @@ interface PlacePredictionsRequest {
   input: string;
 }
 
-console.log('Google Places function started');
+console.log('Google Places function loaded');
 
 Deno.serve(async (req) => {
-  console.log(`Request method: ${req.method}`);
+  console.log(`Google Places: ${req.method} request received`);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Google Places: CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('Google Places: Processing request');
     const { input } = await req.json() as PlacePredictionsRequest;
+    console.log('Google Places: Input received:', input);
+    
     const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
 
     if (!GOOGLE_MAPS_API_KEY) {
-      console.error('Missing Google Maps API key');
+      console.error('Google Places: Missing Google Maps API key');
       return new Response(
         JSON.stringify({ 
           error: true, 
@@ -30,26 +35,24 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use correct parameters and enable all types of places for better results
-    // Note: Removing the type restriction to get more results
+    console.log('Google Places: API key found, making request to Google');
     const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:ge&language=en&key=${GOOGLE_MAPS_API_KEY}`;
     
-    console.log(`Fetching Google Places API: ${url.replace(GOOGLE_MAPS_API_KEY, 'API_KEY_REDACTED')}`);
-    
+    console.log('Google Places: Fetching from Google API');
     const response = await fetch(url);
     
     if (!response.ok) {
+      console.error('Google Places: Google API returned error status:', response.status);
       throw new Error(`Google API returned status ${response.status}`);
     }
     
     const data = await response.json();
-
-    console.log(`Google Places API response status: ${data.status}`);
+    console.log('Google Places: Google API response status:', data.status);
+    console.log('Google Places: Number of predictions:', data.predictions?.length || 0);
     
     if (data.status !== 'OK' && data.error_message) {
-      console.error(`Google Places API error: ${data.error_message}`);
+      console.error(`Google Places: Google API error: ${data.error_message}`);
       
-      // Check for specific API key issues
       if (data.error_message.includes('API project is not authorized') || 
           data.error_message.includes('API key')) {
         return new Response(
@@ -64,7 +67,6 @@ Deno.serve(async (req) => {
       }
     }
     
-    // Return empty predictions array if status is not OK to prevent frontend errors
     if (data.status !== 'OK') {
       return new Response(
         JSON.stringify({ 
@@ -76,12 +78,13 @@ Deno.serve(async (req) => {
       );
     }
 
+    console.log('Google Places: Returning successful response');
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Google Places: Error occurred:', error.message);
     return new Response(
       JSON.stringify({ 
         error: true, 
