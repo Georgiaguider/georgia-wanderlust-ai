@@ -25,7 +25,7 @@ interface Prediction {
 const LocationSearch: React.FC<LocationSearchProps> = ({ 
   value, 
   onChange, 
-  placeholder = "Search for a location in Georgia...",
+  placeholder = "Search for a destination...",
   label
 }) => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);

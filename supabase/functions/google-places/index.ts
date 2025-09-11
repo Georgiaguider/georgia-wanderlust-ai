@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:ge&language=en&key=${GOOGLE_MAPS_API_KEY}`;
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&language=en&key=${GOOGLE_MAPS_API_KEY}`;
     
     console.log('Google Places: Making request to Google Maps API');
     const response = await fetch(url);
