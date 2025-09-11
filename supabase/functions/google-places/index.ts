@@ -1,12 +1,14 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { corsHeaders } from '../_shared/cors.ts';
 
 interface PlacePredictionsRequest {
   input: string;
 }
 
+console.log('Google Places function started');
+
 Deno.serve(async (req) => {
+  console.log(`Request method: ${req.method}`);
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
