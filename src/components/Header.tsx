@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import Logo from './Logo';
+import AuthButton from './AuthButton';
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -92,6 +93,8 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           <Button variant="outline" className="bg-georgia-red text-white hover:bg-georgia-red/90 ml-2" asChild>
             <Link to="/create">Plan Your Trip</Link>
           </Button>
+          
+          <AuthButton />
           
           {children}
         </div>
