@@ -9,9 +9,9 @@ const HeaderExtension = () => {
   
   return (
     <Link 
-      to="/saved" 
+      to="/saved-itineraries" 
       className={`flex items-center gap-2 hover:text-georgia-red transition-colors ${
-        location.pathname === '/saved' ? 'text-georgia-red' : ''
+        location.pathname === '/saved-itineraries' ? 'text-georgia-red' : ''
       } md:ml-6 no-print`}
     >
       <Bookmark size={16} />
