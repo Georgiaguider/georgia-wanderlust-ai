@@ -90,7 +90,7 @@ const Create = () => {
         throw new Error('Failed to save itinerary');
       }
 
-      // Navigate to the itinerary view page with the saved ID
+      // Navigate immediately to the itinerary view page
       navigate(`/itinerary/${savedItinerary.id}`);
       
     } catch (error) {
