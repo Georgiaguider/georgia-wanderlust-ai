@@ -112,118 +112,28 @@ export const generateItinerary = async (request: ItineraryRequest): Promise<Itin
     
     console.log("Generating itinerary for:", { destination, startDate, endDate, travelStyle, activities, numberOfDays });
     
-    // Try to directly use OpenAI API
-    try {
-      const prompt = `
-Create a detailed ${numberOfDays}-day itinerary for a ${travelStyle} trip to ${destination} from ${formatDate(startDate)} to ${formatDate(endDate)}.
-${activities ? `Include activities focused on: ${activities}` : ''}
-
-Each day should include:
-1. A title for the day
-2. 4-6 activities
-3. Meal recommendations
-4. Accommodation suggestions
-
-Format the response as a valid JSON array with the following structure for each day:
-[
-  {
-    "day": 1,
-    "date": "May 1, 2025",
-    "title": "Exploring Old Tbilisi",
-    "activities": [
-      "Morning walking tour of Narikala Fortress",
-      "Visit the sulfur baths in Abanotubani",
-      "Lunch at a traditional restaurant",
-      "Explore the historic churches and synagogue",
-      "Evening wine tasting"
-    ],
-    "meals": {
-      "breakfast": "Traditional Georgian breakfast at the hotel",
-      "lunch": "Khinkali and khachapuri at Restaurant Name",
-      "dinner": "Georgian feast at Restaurant Name"
-    },
-    "accommodation": "Stay at Hotel Name in City Center"
-  }
-]
-
-Each day should be authentic to local culture and include specific location names, restaurants, and attractions. For a ${travelStyle} travel style, adjust the accommodation and activity recommendations accordingly.
-`;
-
-      // Use fetch API to directly call OpenAI
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Note: In a real application, you'd use an environment variable for this
-          // We're directly using the API key here for demonstration only
-          'Authorization': 'Bearer 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'
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: 'You are a travel expert specializing in tourism. You provide detailed, authentic travel itineraries with specific recommendations.' },
-            { role: 'user', content: prompt }
-          ],
-          temperature: 0.7,
-        }),
-      });
-
-      if (!response.ok) {
-        console.error(`OpenAI API error: ${response.status}`);
-        throw new Error(`OpenAI API error: ${response.status}`);
+    // Use Supabase Edge Function
+    console.log("Using Supabase Edge Function for itinerary generation");
+    const { supabase } = await import('@/integrations/supabase/client');
+    
+    const { data, error } = await supabase.functions.invoke('generate-itinerary', {
+      body: {
+        destination,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        numberOfDays,
+        travelStyle,
+        activities
       }
+    });
 
-      const data = await response.json();
-      console.log("OpenAI response:", data);
-      
-      const generatedContent = data.choices[0].message.content;
-      
-      // Extract the JSON from the response
-      let itinerary;
-      try {
-        // Look for JSON array in the response
-        const jsonMatch = generatedContent.match(/\[\s*\{.*\}\s*\]/s);
-        if (jsonMatch) {
-          itinerary = JSON.parse(jsonMatch[0]);
-        } else {
-          // If no JSON array found, try parsing the entire response
-          itinerary = JSON.parse(generatedContent);
-        }
-        return itinerary;
-      } catch (parseError) {
-        console.error("Failed to parse OpenAI response:", parseError);
-        throw parseError;
-      }
-    } catch (openaiError) {
-      console.error("Error calling OpenAI directly:", openaiError);
-      
-      // Fall back to Supabase Edge Function
-      console.log("Falling back to Supabase Edge Function");
-      const response = await fetch('https://kjiceckxywowbefmccrw.supabase.co/functions/v1/generate-itinerary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaWNlY2t4eXdvd2JlZm1jY3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU3NDY4ODUsImV4cCI6MjA2MTMyMjg4NX0.4xqF7YEevLidBbbxhVs2VhfuHekwhlXxZIuJOCSRB3U'
-        },
-        body: JSON.stringify({
-          destination,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-          numberOfDays,
-          travelStyle,
-          activities
-        }),
-      });
-
-      if (!response.ok) {
-        console.error(`Edge Function error: ${response.status}`);
-        // If edge function also fails, use fallback data
-        return generateFallbackItinerary(destination, startDate, endDate, numberOfDays, travelStyle);
-      }
-      
-      const data = await response.json();
-      return data.itinerary;
+    if (error) {
+      console.error('Edge Function error:', error);
+      // If edge function fails, use fallback data
+      return generateFallbackItinerary(destination, startDate, endDate, numberOfDays, travelStyle);
     }
+    
+    return data.itinerary;
   } catch (error) {
     console.error("Error generating itinerary:", error);
     // As a last resort, use our fallback data

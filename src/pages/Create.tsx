@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import TravelForm from '@/components/TravelForm';
 import { useToast } from '@/components/ui/use-toast';
 import { generateItinerary, ItineraryDay } from '@/services/openai';
+import { saveItinerary } from '@/services/itineraries';
 import { format, addDays, differenceInDays } from 'date-fns';
 import HeaderExtension from '@/components/HeaderExtension';
 
@@ -72,16 +73,25 @@ const Create = () => {
         activities: formData.activities
       });
 
-      // Navigate to the itinerary view page with the generated data
-      navigate('/itinerary', {
-        state: {
-          destination: formData.destination,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          travelStyle: formData.travelStyle,
-          itinerary: generatedItinerary
-        }
-      });
+      // Save itinerary to database
+      const numberOfDays = differenceInDays(formData.endDate, formData.startDate) + 1;
+      const savedItinerary = await saveItinerary(
+        formData.destination,
+        formData.startDate,
+        formData.endDate,
+        formData.travelStyle,
+        formData.activities ? [formData.activities] : [],
+        numberOfDays,
+        generatedItinerary,
+        false
+      );
+
+      if (!savedItinerary) {
+        throw new Error('Failed to save itinerary');
+      }
+
+      // Navigate to the itinerary view page with the saved ID
+      navigate(`/itinerary/${savedItinerary.id}`);
       
     } catch (error) {
       console.error("Error generating itinerary:", error);
