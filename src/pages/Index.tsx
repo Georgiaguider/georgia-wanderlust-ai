@@ -1,4 +1,4 @@
-import React from 'react';
+import georgianFeastImage from "@/assets/georgian-feast.jpg";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -262,7 +262,7 @@ const Index = () => {
                 
                 <div className="rounded-xl overflow-hidden shadow-xl hidden lg:block">
                   <img 
-                    src="https://images.unsplash.com/photo-1572883760610-59469206f589?auto=format&q=75&fit=crop&w=800&h=600" 
+                    src={georgianFeastImage} 
                     alt="Georgian feast" 
                     className="w-full h-full object-cover"
                   />
