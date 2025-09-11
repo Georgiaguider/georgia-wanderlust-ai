@@ -27,7 +27,7 @@ export type Database = {
           start_date: string
           travel_style: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           activities?: string[] | null
@@ -41,7 +41,7 @@ export type Database = {
           start_date: string
           travel_style: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           activities?: string[] | null
@@ -55,34 +55,7 @@ export type Database = {
           start_date?: string
           travel_style?: string
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          email: string | null
-          full_name: string | null
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id: string
-          updated_at?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id?: string
-          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

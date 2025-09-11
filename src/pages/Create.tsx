@@ -87,13 +87,7 @@ const Create = () => {
       );
 
       if (!savedItinerary) {
-        toast({
-          title: "Error",
-          description: "Failed to save itinerary. Please make sure you're logged in and try again.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
+        throw new Error('Failed to save itinerary');
       }
 
       // Navigate immediately to the itinerary view page

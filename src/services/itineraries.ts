@@ -11,7 +11,6 @@ export interface SavedItinerary {
   number_of_days: number;
   itinerary_data: ItineraryDay[];
   is_fallback: boolean;
-  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -27,18 +26,9 @@ export const saveItinerary = async (
   isFallback: boolean = false
 ): Promise<SavedItinerary | null> => {
   try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      console.error('User not authenticated');
-      return null;
-    }
-
     const { data, error } = await supabase
       .from('itineraries')
       .insert({
-        user_id: user.id,
         destination,
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0],

@@ -3,16 +3,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Bookmark } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 
 const HeaderExtension = () => {
   const location = useLocation();
-  const { user } = useAuth();
-  
-  // Only show saved itineraries link for authenticated users
-  if (!user) {
-    return null;
-  }
   
   return (
     <Link 
